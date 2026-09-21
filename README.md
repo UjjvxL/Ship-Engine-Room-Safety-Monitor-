@@ -1,5 +1,10 @@
 # Engine Room — Vitals Monitoring System
 
+[![Live Interactive Presentation Deck](https://img.shields.io/badge/Live%20Presentation-Interactive%203D%20Deck-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ujjvxl.github.io/Ship-Engine-Room-Safety-Monitor-/)
+
+> 🚀 **Live Interactive Presentation Deck**: [https://ujjvxl.github.io/Ship-Engine-Room-Safety-Monitor-/](https://ujjvxl.github.io/Ship-Engine-Room-Safety-Monitor-/)  
+> Featuring interactive 3D flip cards, live engine safety state simulator, sound feedback, and dual-video demonstration player.
+
 A real-time embedded monitoring system built on the **STM32F411CEU6 (Black Pill)** that watches distance, temperature, and gas levels, decides a hazard mode, drives local alerts (LEDs/buzzer/OLED), and streams telemetry to a live Python dashboard.
 
 <p align="center">
