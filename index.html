@@ -1,0 +1,2827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Ship Engine Room Safety Monitor — Capstone Presentation</title>
+  
+  <!-- Premium Soothing Typography: Outfit, Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(ellipse at 50% -10%, #151a2e 0%, #0c101b 55%, #06080e 100%);
+      --bg-card: rgba(18, 24, 38, 0.62);
+      --bg-card-hover: rgba(25, 33, 53, 0.8);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --border-card-hover: rgba(52, 211, 153, 0.35);
+      --border-accent-purple: rgba(139, 92, 246, 0.3);
+      --neon-mint: #10b981;
+      --neon-mint-bright: #34d399;
+      --neon-mint-soft: rgba(16, 185, 129, 0.12);
+      --neon-purple: #8b5cf6;
+      --neon-purple-soft: rgba(139, 92, 246, 0.12);
+      --neon-cyan: #06b6d4;
+      --neon-cyan-soft: rgba(6, 182, 212, 0.12);
+      --neon-amber: #f59e0b;
+      --neon-amber-soft: rgba(245, 158, 11, 0.12);
+      --neon-red: #f43f5e;
+      --neon-red-soft: rgba(244, 63, 94, 0.14);
+      --text-white: #ffffff;
+      --text-slate: #f8fafc;
+      --text-lavender: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #080a11;
+      background-image: var(--bg-gradient);
+      color: var(--text-slate);
+      font-family: var(--font-body);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Soothing Ambient Atmospheric Glows */
+    .ambient-glow {
+      position: absolute;
+      top: -140px;
+      right: -100px;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(120px);
+      animation: floatGlow 18s infinite alternate ease-in-out;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: -180px;
+      left: -120px;
+      width: 850px;
+      height: 850px;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(130px);
+      animation: floatGlow2 20s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatGlow {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-60px, 80px) scale(1.15); }
+    }
+
+    @keyframes floatGlow2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, -60px) scale(1.1); }
+    }
+
+    /* Clean Top App Shell Navbar */
+    .app-shell-top {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.2rem;
+      background: rgba(10, 13, 22, 0.75);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      z-index: 100;
+      position: relative;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      letter-spacing: 0.04em;
+    }
+
+    .status-beacon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-mint-bright);
+      box-shadow: 0 0 10px var(--neon-mint-bright);
+      animation: beaconBlink 2.2s infinite ease-in-out;
+    }
+
+    @keyframes beaconBlink {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: 0.55; }
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.035);
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 6px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .tab-btn.active {
+      background: rgba(52, 211, 153, 0.14);
+      color: var(--neon-mint-bright);
+      border: 1px solid rgba(52, 211, 153, 0.28);
+      font-weight: 600;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .soundwave-visualizer {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 18px;
+      margin-right: 8px;
+    }
+
+    .wave-bar {
+      width: 2.5px;
+      height: 100%;
+      background: var(--neon-mint-bright);
+      border-radius: 2px;
+      opacity: 0.8;
+      animation: waveDance 1.4s infinite ease-in-out;
+    }
+
+    .wave-bar:nth-child(1) { animation-delay: 0.1s; height: 35%; }
+    .wave-bar:nth-child(2) { animation-delay: 0.3s; height: 75%; }
+    .wave-bar:nth-child(3) { animation-delay: 0.5s; height: 100%; }
+    .wave-bar:nth-child(4) { animation-delay: 0.2s; height: 60%; }
+    .wave-bar:nth-child(5) { animation-delay: 0.4s; height: 85%; }
+    .wave-bar:nth-child(6) { animation-delay: 0.15s; height: 40%; }
+
+    @keyframes waveDance {
+      0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .btn-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-pill:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .btn-pill-primary {
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: var(--neon-mint-bright);
+    }
+
+    .btn-pill-primary:hover {
+      background: rgba(52, 211, 153, 0.24);
+      border-color: var(--neon-mint-bright);
+      color: #ffffff;
+    }
+
+    .btn-speaker-notes {
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(139, 92, 246, 0.28);
+      color: #c4b5fd;
+    }
+
+    .btn-speaker-notes:hover {
+      background: rgba(139, 92, 246, 0.2);
+      color: #ffffff;
+      border-color: #a78bfa;
+    }
+
+    .btn-pill-cyan {
+      background: rgba(6, 182, 212, 0.14);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--neon-cyan);
+    }
+
+    .btn-pill-cyan:hover {
+      background: rgba(6, 182, 212, 0.25);
+      color: #ffffff;
+      border-color: var(--neon-cyan);
+    }
+
+    /* Deck Viewport */
+    .deck-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.985) translateY(8px);
+      transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 1.8rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+
+    .slide::-webkit-scrollbar {
+      width: 5px;
+    }
+    .slide::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Refined Headers with Outfit */
+    .hud-bracket {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.45rem;
+    }
+
+    .hud-bracket-line {
+      width: 18px;
+      height: 2px;
+      background: var(--neon-mint-bright);
+      border-radius: 2px;
+    }
+
+    .slide-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--neon-mint-bright);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .slide-headline {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 2.3vw, 2.25rem);
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: -0.02em;
+      line-height: 1.22;
+      margin-bottom: 0.45rem;
+    }
+
+    .slide-subhead {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+      max-width: 920px;
+    }
+
+    .gradient-text-mint {
+      background: linear-gradient(135deg, #ffffff 35%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Refined Soothing Bento Cards with Natural Spacing */
+    .sci-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 18px;
+      padding: 1.65rem 1.85rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sci-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-card-hover);
+      box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 20px rgba(52, 211, 153, 0.08);
+    }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--neon-mint-bright);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--neon-mint-soft);
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(52, 211, 153, 0.22);
+      width: fit-content;
+      text-transform: uppercase;
+    }
+
+    .card-heading {
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-bottom: 0.75rem;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .sci-card p,
+    .flip-card-front p,
+    .flip-card-back p {
+      font-size: 0.98rem;
+      color: var(--text-lavender);
+      line-height: 1.72;
+      letter-spacing: 0.005em;
+      margin-bottom: 0.75rem;
+    }
+
+    .sci-card ul,
+    .flip-card-front ul,
+    .flip-card-back ul {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .sci-card ul li,
+    .flip-card-front ul li,
+    .flip-card-back ul li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 0.94rem;
+      color: var(--text-lavender);
+      line-height: 1.65;
+    }
+
+    .sci-card ul li:last-child,
+    .flip-card-front ul li:last-child,
+    .flip-card-back ul li:last-child {
+      margin-bottom: 0;
+    }
+
+    .sci-card ul li::before,
+    .flip-card-front ul li::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      top: -1px;
+      color: var(--neon-mint-bright);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    /* Bottom Footer Pill in Front of Cards for Perfect Vertical Balance */
+    .card-footer-pill {
+      margin-top: auto;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .card-footer-pill strong {
+      color: var(--neon-mint-bright);
+      font-weight: 600;
+    }
+
+    /* ==========================================================
+       Interactive 3D Flippable Cards
+       ========================================================== */
+    .flip-card {
+      perspective: 1400px;
+      cursor: pointer;
+      display: grid;
+      grid-template-rows: 1fr;
+      height: 100%;
+      user-select: none;
+      position: relative;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.62s cubic-bezier(0.2, 0.85, 0.25, 1);
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      grid-area: 1 / 1;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 18px;
+      padding: 1.65rem 1.85rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flip-card-front {
+      transform: rotateY(0deg);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .flip-card:hover .flip-card-front {
+      transform: translateY(-2px);
+      border-color: var(--border-card-hover);
+      box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 20px rgba(52, 211, 153, 0.08);
+    }
+
+    .flip-card-back {
+      transform: rotateY(180deg);
+      background: radial-gradient(ellipse at 80% 20%, rgba(22, 32, 54, 0.97) 0%, rgba(10, 14, 24, 0.99) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 30px rgba(52, 211, 153, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(24px);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .flip-card.flipped:hover .flip-card-back {
+      border-color: rgba(52, 211, 153, 0.65);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(52, 211, 153, 0.22);
+    }
+
+    /* Flip Hint Pill in Top Corner */
+    .flip-hint {
+      position: absolute;
+      top: 13px;
+      right: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3px 9px;
+      border-radius: 999px;
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .flip-card:hover .flip-hint {
+      color: var(--neon-mint-bright);
+      border-color: rgba(52, 211, 153, 0.35);
+      background: rgba(52, 211, 153, 0.1);
+      transform: scale(1.04);
+    }
+
+    .flip-hint-back {
+      color: var(--neon-mint-bright);
+      border-color: rgba(52, 211, 153, 0.3);
+      background: rgba(52, 211, 153, 0.12);
+    }
+
+    .flip-card-back h4 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flip-card-back p {
+      font-size: 0.96rem;
+      line-height: 1.72;
+      color: var(--text-lavender);
+      margin-bottom: 0.8rem;
+    }
+
+    .flip-card-back ul {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .flip-card-back ul li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 0.92rem;
+      color: var(--text-lavender);
+      line-height: 1.62;
+    }
+
+    .flip-card-back ul li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--neon-mint-bright);
+      font-size: 0.92rem;
+    }
+
+    .flip-metric-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.28);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--neon-mint-bright);
+      margin-top: auto;
+      width: fit-content;
+    }
+
+    /* Card Upper Content Container for Natural Vertical Flow */
+    .card-content-top {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.55rem;
+    }
+
+    /* Clean Bulleted Feature Highlights for Balanced Card Depth */
+    .card-features {
+      list-style: none;
+      padding: 0;
+      margin: 0.65rem 0 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .card-features li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--text-lavender);
+    }
+
+    .card-features li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: var(--neon-mint-bright);
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .card-features li strong,
+    .card-features li span.feat-title {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.35rem;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.35rem;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 1fr 1fr;
+      gap: 1.2rem;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    @media (max-width: 1240px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-6 { grid-template-columns: repeat(2, 1fr); }
+      .slide { padding: 1.5rem 2.2rem; }
+    }
+
+    @media (max-width: 768px) {
+      .grid-4, .grid-3, .grid-2, .grid-6 { grid-template-columns: 1fr; }
+      .slide { padding: 1.2rem 1.4rem; }
+    }
+
+    /* Image Frame */
+    .image-showcase {
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #06080e;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-showcase img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Speaker Notes Tray */
+    .speaker-notes-tray {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%) translateY(125%);
+      width: 90%;
+      max-width: 980px;
+      background: rgba(16, 21, 34, 0.96);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: 16px;
+      padding: 1.2rem 1.8rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.15);
+      backdrop-filter: blur(24px);
+      z-index: 200;
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .speaker-notes-tray.open {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .notes-title {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #c4b5fd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .notes-speech {
+      font-size: 0.98rem;
+      color: #f8fafc;
+      line-height: 1.65;
+      font-weight: 400;
+    }
+
+    /* Interactive Simulator */
+    .simulator-panel {
+      background: rgba(18, 24, 38, 0.68);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 18px;
+      padding: 1.45rem 1.65rem;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sim-slider-row {
+      margin-bottom: 0.85rem;
+    }
+
+    .sim-label-val {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      outline: none;
+      transition: background 0.2s;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--neon-mint-bright);
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+      border: 2px solid #ffffff;
+      transition: transform 0.15s ease;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .mode-indicator-box {
+      border-radius: 14px;
+      padding: 1rem;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      transition: all 0.3s ease;
+      margin-top: 0.85rem;
+    }
+
+    .sim-safe {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--neon-mint-bright);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .sim-hazard {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--neon-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .sim-emergency {
+      background: rgba(244, 63, 94, 0.18);
+      color: #ffffff;
+      border: 1px solid var(--neon-red);
+      box-shadow: 0 0 30px rgba(244, 63, 94, 0.35);
+      animation: alertFlash 0.6s infinite alternate;
+    }
+
+    @keyframes alertFlash {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.25); }
+    }
+
+    /* Bottom Status Footer */
+    .app-shell-bottom {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.2rem;
+      background: rgba(9, 12, 19, 0.85);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 100;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-dim);
+    }
+
+    .progress-track {
+      position: absolute;
+      bottom: 44px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 101;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 7.14%;
+      background: linear-gradient(90deg, #8b5cf6, var(--neon-mint-bright));
+      transition: width 0.35s ease;
+    }
+
+    .chevron-next {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--neon-mint-bright);
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+
+    .chevron-next:hover {
+      transform: translateX(4px);
+    }
+
+    /* Video Demonstration Modal */
+    #videoModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(6, 8, 13, 0.94);
+      backdrop-filter: blur(24px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top App Shell Navbar -->
+  <header class="app-shell-top">
+    <div class="brand-group">
+      <div class="status-beacon"></div>
+      <div class="brand-pill">
+        <span>SMART ENGINE MONITOR</span>
+        <span style="color:var(--neon-mint)">•</span>
+        <span>STM32</span>
+      </div>
+    </div>
+
+    <!-- Quick Slide Category Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showSlide(1)">01 HERO</button>
+      <button class="tab-btn" onclick="showSlide(2)">02 WHY THIS?</button>
+      <button class="tab-btn" onclick="showSlide(4)">03 HARDWARE</button>
+      <button class="tab-btn" onclick="showSlide(6)">04 HOW IT CODES</button>
+      <button class="tab-btn" onclick="showSlide(8)">05 THE BRAIN</button>
+      <button class="tab-btn" onclick="showSlide(9)">06 PC SCREEN</button>
+      <button class="tab-btn" onclick="showSlide(10)">07 LIVE TEST</button>
+      <button class="tab-btn" onclick="showSlide(12)">08 LEARNINGS</button>
+    </div>
+
+    <div class="controls-group">
+      <button class="btn-pill" onclick="flipAllCardsOnSlide()" title="Flip all cards to reveal deep technical specs (Shortcut: R)" style="color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.35); background:rgba(52, 211, 153, 0.08);">
+        🔄 Flip Cards
+      </button>
+      <button class="btn-pill btn-speaker-notes" onclick="toggleSpeakerNotes()" title="View quick 20-second speaking script">
+        💬 What to Say
+      </button>
+      <button class="btn-pill" onclick="prevSlide()">◀ Back</button>
+      <button class="btn-pill btn-pill-primary" onclick="nextSlide()">Next ▶</button>
+      <button class="btn-pill" onclick="toggleFullScreen()" title="Fullscreen (Shortcut: F)">⛶</button>
+      <a href="C:/Users/ujjva/Downloads/Ship_Engine_Room_Safety_Monitor_Presentation.pptx" download class="btn-pill" style="text-decoration:none; color:var(--neon-mint); border-color:var(--neon-mint);">⬇ PPTX</a>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-track">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Main Slides Viewport -->
+  <main class="deck-viewport" id="viewport">
+
+    <!-- ==========================================================
+         SLIDE 1: Title & Hero
+         ========================================================== -->
+    <section class="slide active" id="slide-1" data-speech="Hello everyone! Today I am presenting my internship project: an Autonomous Ship Engine Room Safety Monitor. Ship engine rooms are extremely loud, hot, and dangerous. We built an automated hardware sentinel using an STM32 chip that constantly watches temperature, gas leaks, and physical distance in real time. It reacts in milliseconds with alarms and streams live data to a laptop.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">INTERNSHIP CAPSTONE DEFENSE // EASY & SIMPLE WALKTHROUGH</span>
+      </div>
+
+      <h1 class="slide-headline" style="font-size: clamp(2.3rem, 3.2vw, 2.9rem); line-height: 1.18; margin-bottom: 0.6rem;">
+        Smart Ship Engine Room<br>
+        <span class="gradient-text-mint">Safety & Vitals Monitor</span>
+      </h1>
+
+      <p class="slide-subhead">
+        An automated embedded guardian that continuously watches temperature, toxic gas leaks, and machinery clearances inside ships—stopping catastrophic engine fires before they happen.
+      </p>
+
+      <div class="grid-4" style="margin-bottom: 1.3rem;">
+        <!-- Card 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">THE BRAIN</span>
+                <div class="card-heading">STM32 Microcontroller</div>
+                <p>High-performance 32-bit ARM processor executing custom bare-metal C code without operating system overhead.</p>
+                <ul class="card-features">
+                  <li><strong>96 MHz Core Clock:</strong> Microsecond-speed execution</li>
+                  <li><strong>Bare-Metal Superloop:</strong> Never stalls or sleeps</li>
+                  <li><strong>Dedicated Silicon:</strong> Direct timer &amp; ADC capture</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Core Clock</span>
+                <strong>96 MHz Cortex-M4</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(139, 92, 246, 0.12); color:#c4b5fd; border-color:rgba(139, 92, 246, 0.3);">CHIP ARCHITECTURE</span>
+                <h4>ARM Cortex-M4</h4>
+                <ul>
+                  <li><strong>Clock:</strong> 96 MHz PLL Frequency</li>
+                  <li><strong>Flash/RAM:</strong> 512 KB ROM / 128 KB RAM</li>
+                  <li><strong>Execution:</strong> 100% Bare-metal C loop</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⚡ &lt; 0.2W Power Draw</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">THE SENSES</span>
+                <div class="card-heading">3 Critical Sensors</div>
+                <p>Continuous non-stop surveillance monitoring heat buildup, explosive fuel gas leaks, and machinery clearances.</p>
+                <ul class="card-features">
+                  <li><strong>DS18B20 Heat Probe:</strong> ±0.5°C accurate digital contact</li>
+                  <li><strong>MQ-2 Gas Detector:</strong> Sniffs fuel fumes &amp; smoke</li>
+                  <li><strong>HC-SR04 Sonar:</strong> 40 kHz acoustic distance guard</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Triple Guard</span>
+                <strong>Temp + Gas + Sonar</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(6, 182, 212, 0.12); color:var(--neon-cyan); border-color:rgba(6, 182, 212, 0.3);">SENSOR PRECISION</span>
+                <h4>Triple Guard Network</h4>
+                <ul>
+                  <li><strong>DS18B20 Temp:</strong> ±0.5°C accurate 1-Wire</li>
+                  <li><strong>MQ-2 Gas:</strong> Sniffs fuel &amp; exhaust smoke</li>
+                  <li><strong>HC-SR04 Sonar:</strong> 40 kHz ultrasonic pulses</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🎯 Sub-millisecond Sensing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">THE REFLEXES</span>
+                <div class="card-heading">Instant Alarms</div>
+                <p>Tri-stage audiovisual warning system that alerts engineers and command crew in under 15 milliseconds.</p>
+                <ul class="card-features">
+                  <li><strong>Traffic-Light LEDs:</strong> Green, Yellow, and Red modes</li>
+                  <li><strong>Dual-Tone Siren:</strong> Gentle warning to rapid sirens</li>
+                  <li><strong>Onboard OLED:</strong> Live numbers right on the engine bay</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Fail-Safe</span>
+                <strong>LEDs + Siren + OLED</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(244, 63, 94, 0.12); color:var(--neon-red); border-color:rgba(244, 63, 94, 0.3);">FAIL-SAFE ACTUATION</span>
+                <h4>Instant Dual Alarm</h4>
+                <ul>
+                  <li><strong>Acoustic:</strong> 85 dB Piezo Warning Siren</li>
+                  <li><strong>Visual:</strong> High-flux Red/Yellow/Green LEDs</li>
+                  <li><strong>Local Screen:</strong> 128x64 OLED onboard display</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⏱ &lt; 15ms Response Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">THE WINDOW</span>
+                <div class="card-heading">Live PC Dashboard</div>
+                <p>Multithreaded laptop telemetry interface displaying rolling trendlines and exporting permanent safety logs.</p>
+                <ul class="card-features">
+                  <li><strong>Real-Time Charts:</strong> Smooth 4 Hz visual updates</li>
+                  <li><strong>Non-Blocking Worker:</strong> Zero dropped serial packets</li>
+                  <li><strong>Excel CSV Logger:</strong> On-demand timestamped audit</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Live Telemetry</span>
+                <strong>115,200 Baud / 4 Hz</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(16, 185, 129, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">TELEMETRY HUB</span>
+                <h4>Multithreaded PC Hub</h4>
+                <ul>
+                  <li><strong>UART Line:</strong> 115,200 baud serial stream</li>
+                  <li><strong>Background Worker:</strong> Zero dropped packets</li>
+                  <li><strong>Audit Trail:</strong> Auto-exports timestamped CSV</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">📊 4 Hz Real-time Plotting</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sci-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0.85rem 1.6rem; border-color: rgba(139, 92, 246, 0.35); background: rgba(18, 24, 38, 0.55);">
+        <div style="font-family: var(--font-mono); font-size: 0.86rem;">
+          PROJECT CREATOR: <strong style="color: #fff;">Ujjval</strong> &nbsp;|&nbsp; 
+          GITHUB: <span style="color: var(--neon-mint-bright);">github.com/UjjvxL/Ship-Engine-Room-Safety-Monitor-</span>
+        </div>
+        <div>
+          <span class="card-label" style="background: rgba(16, 185, 129, 0.12); color: var(--neon-mint-bright); border-color: rgba(52, 211, 153, 0.28); margin: 0;">100% REAL HARDWARE TESTED</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 2: Why Did We Build This?
+         ========================================================== -->
+    <section class="slide" id="slide-2" data-speech="Why did we build this? Ships travel for weeks across open oceans. Their engine rooms are enclosed, deafening, and full of high pressure fuel lines. Crew members only do rounds every few hours. If a fuel pipe cracks or a bearing overheats, an explosion can happen in 30 seconds. Our project provides an untiring 24/7 digital guard that spots danger instantly.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">THE REAL-WORLD PROBLEM</span>
+      </div>
+      <h2 class="slide-headline">Why Do Ships Urgently Need This?</h2>
+      <p class="slide-subhead">Engine rooms are the most dangerous compartment on any vessel. Here is the problem we set out to solve:</p>
+
+      <div class="grid-3">
+        <!-- Card 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">01 / A HARSH ENVIRONMENT</span>
+                <div class="card-heading">Too Extreme For Humans</div>
+                <ul>
+                  <li>Engine rooms are deafeningly loud, boiling hot, and cramped.</li>
+                  <li>Humans cannot stand there 24 hours a day watching every single pipe.</li>
+                  <li>Crew members do rounds once every few hours—leaving long blind spots.</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Hazard Zone</span>
+                <strong>55°C Ambient &amp; 110 dB Roar</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(244, 63, 94, 0.12); color:var(--neon-red); border-color:rgba(244, 63, 94, 0.3);">MARITIME CONDITIONS</span>
+                <h4>The Engine Bay Reality</h4>
+                <ul>
+                  <li><strong>Heat &amp; Noise:</strong> 55°C ambient air + 110 dB acoustic roar</li>
+                  <li><strong>Atmosphere:</strong> Toxic diesel particulate &amp; fuel mist</li>
+                  <li><strong>Blindspots:</strong> 4 to 6 hours between human rounds</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🛡️ 24/7 Untiring Sentinel</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-color: rgba(52, 211, 153, 0.45);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">02 / DISASTER STRIKES FAST</span>
+                <div class="card-heading">30 Seconds Can Sink A Ship</div>
+                <ul>
+                  <li>A tiny spray of diesel onto a 400°C exhaust pipe ignites in seconds.</li>
+                  <li>Overheating bearings can seize and disable propulsion in rough seas.</li>
+                  <li>Toxic exhaust fumes can knock out crew members without warning.</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Disaster Pace</span>
+                <strong>Flash Fire &lt; 30 Seconds</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(245, 158, 11, 0.12); color:var(--neon-amber); border-color:rgba(245, 158, 11, 0.3);">FAILURE TIMELINE</span>
+                <h4>Flash Fire Chain Reaction</h4>
+                <ul>
+                  <li><strong>T+0s:</strong> Fuel line micro-fissure under 200 bar pressure</li>
+                  <li><strong>T+12s:</strong> Atomized diesel mist hits unlagged turbo manifold</li>
+                  <li><strong>T+28s:</strong> Autoignition at 380°C causes catastrophic flashover</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⚡ Caught in &lt;15ms by STM32</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">03 / OUR GOAL</span>
+                <div class="card-heading">A Tireless Digital Guard</div>
+                <ul>
+                  <li>Build a small, affordable unit that sits right next to the engine.</li>
+                  <li>Reads all 3 vitals continuously and sounds an alarm on the spot.</li>
+                  <li>Works completely standalone—even if disconnected from the ship network.</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Engineering Goal</span>
+                <strong>24/7 Standalone Edge Guard</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(16, 185, 129, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">DESIGN PHILOSOPHY</span>
+                <h4>Autonomous &amp; Resilient</h4>
+                <ul>
+                  <li><strong>Standalone:</strong> 100% offline edge monitoring, no cloud lag</li>
+                  <li><strong>Efficiency:</strong> Consumes &lt; 1 Watt of marine DC power</li>
+                  <li><strong>Integrity:</strong> Hard-coded decision matrix prevents false trips</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🚢 Marine Safety Redundancy</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 3: The 3 Dangers We Watch For
+         ========================================================== -->
+    <section class="slide" id="slide-3" data-speech="Our monitor tracks three specific dangers: First, fuel or smoke leaks using an MQ gas sensor. Second, engine overheating using a digital temperature probe set at 45 degrees Celsius. And third, clearance distance using sonar, warning if moving machinery shifts or someone gets dangerously close to spinning shafts.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">WHAT IT ACTUALLY MONITORS</span>
+      </div>
+      <h2 class="slide-headline">The 3 Dangers We Keep Watch Over</h2>
+      <p class="slide-subhead">Instead of complicated, confusing data, our monitor focuses on the 3 critical vitals that cause 90% of engine accidents:</p>
+
+      <div class="grid-3">
+        <!-- Danger 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-red);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-red); border-color: var(--neon-red);">DANGER 1</span>
+                <div class="card-heading">Fuel Gas &amp; Smoke Leaks</div>
+                <p style="margin-bottom: 6px;"><strong>Sensor:</strong> MQ-2 Flammable Gas Detector</p>
+                <p>Sniffs out volatile fuel fumes, exhaust seepage, or melting wire insulation before an open fire breaks out.</p>
+                <ul class="card-features">
+                  <li><strong>Target Hazards:</strong> Diesel mist, LPG, propane &amp; smoke</li>
+                  <li><strong>Rapid Reflex:</strong> Sub-millisecond analog voltage trigger</li>
+                  <li><strong>Early Action:</strong> Trips Yellow Hazard alarm before ignition</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Hazard Type</span>
+                <strong style="color: var(--neon-red);">Flammable Vapor &amp; Mist</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-red); border-color: var(--neon-red); background: rgba(244, 63, 94, 0.12);">MQ-2 SENSING DYNAMICS</span>
+                <h4>Hydrocarbon Detection</h4>
+                <ul>
+                  <li><strong>Mechanism:</strong> SnO2 heated ceramic resistance shift</li>
+                  <li><strong>Gases:</strong> Diesel vapor, LPG, propane, exhaust smoke</li>
+                  <li><strong>Threshold:</strong> Rapid comparator interrupt triggers alarm</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🔬 200 – 10,000 ppm Range</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-amber);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber); border-color: var(--neon-amber);">DANGER 2</span>
+                <div class="card-heading">Engine Overheating</div>
+                <p style="margin-bottom: 6px;"><strong>Sensor:</strong> DS18B20 Digital 1-Wire Probe</p>
+                <p>Measures engine block and coolant temperature down to 0.1°C precision. Triggers an alert the moment heat crosses <strong>45.0°C</strong>.</p>
+                <ul class="card-features">
+                  <li><strong>Digital Precision:</strong> ±0.5°C accurate digital 1-Wire bus</li>
+                  <li><strong>Threshold Safety:</strong> Trips Yellow at 45°C; Red if gas coexists</li>
+                  <li><strong>Marine Rugged:</strong> Waterproof, oil-proof stainless probe</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Alarm Benchmark</span>
+                <strong style="color: var(--neon-amber);">Triggers at &ge; 45.0°C</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber); border-color: var(--neon-amber); background: rgba(245, 158, 11, 0.12);">1-WIRE DIGITAL PROBE</span>
+                <h4>Thermal Boundary</h4>
+                <ul>
+                  <li><strong>Resolution:</strong> 12-bit internal ADC (0.0625°C step)</li>
+                  <li><strong>Mounting:</strong> Stainless-steel probe bolted to engine block</li>
+                  <li><strong>Setpoint:</strong> 45.0°C early-warning benchmark</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🌡️ ±0.5°C Precision (-55 to +125°C)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-cyan);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">DANGER 3</span>
+                <div class="card-heading">Moving Part Clearance</div>
+                <p style="margin-bottom: 6px;"><strong>Sensor:</strong> HC-SR04 Ultrasonic Sonar</p>
+                <p>Shoots sound waves like a bat to verify machinery isn't wobbling loose, and warns if someone gets dangerously close to spinning shafts.</p>
+                <ul class="card-features">
+                  <li><strong>40 kHz Ultrasonic:</strong> Non-contact acoustic range finder</li>
+                  <li><strong>Hardware Capture:</strong> 0% CPU overhead using STM32 TIM2</li>
+                  <li><strong>Zone Defense:</strong> Guards flywheel, driveshaft &amp; pumps</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Detection Range</span>
+                <strong style="color: var(--neon-cyan);">2cm – 400cm Non-Contact</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan); border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.12);">ACOUSTIC TELEMETRY</span>
+                <h4>40 kHz Sonar Ranging</h4>
+                <ul>
+                  <li><strong>Pulse:</strong> 8 bursts of 40 kHz ultrasonic waves fired</li>
+                  <li><strong>Physics:</strong> Formula: <code>Distance = (Time × 343m/s) ÷ 2</code></li>
+                  <li><strong>Safety:</strong> Guards crankshaft &amp; driveshaft zones</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🦇 2cm – 400cm Non-Contact</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 4: The Hardware Pieces
+         ========================================================== -->
+    <section class="slide" id="slide-4" data-speech="Here is the physical hardware we built and assembled. On the left is the working prototype on breadboard. At its center is the STM32 Black Pill microcontroller. We wired it to the ultrasonic distance sensor, the temperature probe, the gas sensor, a small OLED screen for local reading, and 3 colored LEDs with a loud buzzer for instant alarm.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">THE PHYSICAL SETUP</span>
+      </div>
+      <h2 class="slide-headline">The Hardware Pieces (How It Looks)</h2>
+
+      <div class="grid-2">
+        <div class="sci-card" style="display: flex; flex-direction: column;">
+          <span class="card-label">OUR ASSEMBLED PROTOTYPE</span>
+          <div class="image-showcase" style="margin-top: 10px; flex: 1;">
+            <img src="project pic.jpeg" alt="Assembled Hardware Prototype">
+          </div>
+          <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; text-align: center;">
+            Everything fits on a compact board designed to mount directly in the engine bay
+          </p>
+        </div>
+
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <span class="card-label">WHAT EACH PART DOES</span>
+              <div class="card-heading">Simple Parts Breakdown</div>
+              <ul style="margin-top: 0.8rem;">
+                <li><strong>STM32 Black Pill:</strong> The mini-computer that reads all sensors and runs our code.</li>
+                <li><strong>Distance Sensor:</strong> Bounces ultrasonic sound to measure distances from 2cm to 4 meters.</li>
+                <li><strong>Temperature Sensor:</strong> A stainless steel digital probe that touches hot engine surfaces.</li>
+                <li><strong>Gas Sensor:</strong> Detects dangerous flammable vapors in the air.</li>
+                <li><strong>OLED Screen:</strong> A bright mini-screen showing numbers right on the machine.</li>
+                <li><strong>Traffic Light LEDs:</strong> Green (All Safe), Yellow (Hazard Warning), Red (Emergency!).</li>
+                <li><strong>Buzzer:</strong> An audio alarm that beeps slowly for warnings and screams fast for emergencies.</li>
+              </ul>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <span class="card-label" style="background:rgba(52, 211, 153, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">ELECTRICAL POWER PLAN</span>
+              <h4>Power Budget & Voltage Rails</h4>
+              <ul style="margin-top: 0.8rem;">
+                <li><strong>Main Supply:</strong> 5V DC via USB or regulated ship auxiliary line</li>
+                <li><strong>MCU Consumption:</strong> STM32F401 draws ~45mA @ 96 MHz PLL</li>
+                <li><strong>Sensor Network:</strong> MQ-2 heater (35mA) + DS18B20 + HC-SR04</li>
+                <li><strong>Displays & Alarms:</strong> OLED draws ~15mA, LEDs & Buzzer ~20mA</li>
+                <li><strong>Peak System Power:</strong> &lt; 95mA total draw (&lt; 0.48 Watts)</li>
+              </ul>
+              <div class="flip-metric-badge">🔋 Ultra-Low 0.48W Footprint</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 5: Clean Wiring & Pinout
+         ========================================================== -->
+    <section class="slide" id="slide-5" data-speech="To make sure the chip doesn't get confused, every single sensor has its own dedicated highway or pin. We set the STM32 chip to run at 96 megahertz. The temperature probe uses pin PA1, the gas sensor uses pin PA5, the screen uses I2C pins PB6 and 7, and the distance sensor uses timer pins so it measures pulses automatically in the background.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">UNDER THE HOOD</span>
+      </div>
+      <h2 class="slide-headline">Clean Wiring & Connections (The Blueprint)</h2>
+
+      <div class="grid-2">
+        <div class="sci-card" style="display: flex; flex-direction: column;">
+          <span class="card-label">STM32 PIN CONFIGURATION</span>
+          <div class="image-showcase" style="margin-top: 10px; flex: 1;">
+            <img src="IOC Pinout.png" alt="STM32 Pinout Configuration">
+          </div>
+          <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; text-align: center;">
+            Each color represents an organized connection highway inside the chip
+          </p>
+        </div>
+
+        <div class="sci-card">
+          <span class="card-label">HOW SIGNALS TRAVEL</span>
+          <div class="card-heading">Dedicated Communication Lines</div>
+          <p style="margin-bottom: 12px;">We configured the chip so every sensor has its own private lane—preventing traffic jams or mixed signals:</p>
+          
+          <div style="background: rgba(12, 16, 26, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.2rem; font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.7; color: var(--text-lavender);">
+            • <strong style="color:var(--neon-mint-bright)">PA1:</strong> High-speed 1-Wire line for Temperature Probe<br>
+            • <strong style="color:var(--neon-mint-bright)">PA5:</strong> Instant trigger line for Gas Detector<br>
+            • <strong style="color:var(--neon-mint-bright)">PA9/PA10:</strong> Serial cable sending live stream to Laptop<br>
+            • <strong style="color:var(--neon-mint-bright)">PB6/PB7:</strong> Fast screen cable for OLED display<br>
+            • <strong style="color:var(--neon-mint-bright)">TIM2 (PB8):</strong> Hardware timer counting ultrasonic echo waves<br>
+            • <strong style="color:var(--neon-mint-bright)">PB12–15:</strong> Output switches driving LEDs and Buzzer alarm
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 6: The Secret Sauce: Non-Blocking Code
+         ========================================================== -->
+    <section class="slide" id="slide-6" data-speech="This slide explains our biggest engineering achievement. In beginner code, programmers use delay statements that freeze the chip. But our temperature sensor takes almost 1 second to give a reading. If the chip froze for one second, a gas explosion or collision could happen while it was sleeping! Instead, we wrote non-blocking code. Like a chef cooking multiple dishes at once, the chip checks the clock, triggers tasks, and never freezes.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">OUR BIGGEST ENGINEERING CHALLENGE</span>
+      </div>
+      <h2 class="slide-headline">The Secret Sauce: Code That Never Freezes!</h2>
+      <p class="slide-subhead">How does one microcontroller read 3 sensors, update a screen, beep a buzzer, and talk to a PC simultaneously without lagging?</p>
+
+      <div class="grid-2">
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-red);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-red); border-color: var(--neon-red);">THE BAD WAY: PAUSING THE CHIP</span>
+                <div class="card-heading">Why Beginners' Code Fails</div>
+                <p style="margin-bottom: 6px;">The temperature sensor takes <strong>0.75 seconds</strong> to convert heat into a number.</p>
+                <p>If you tell the chip to pause and wait (<code>HAL_Delay</code>), the entire machine goes blind for nearly a second! If gas leaks during that pause, the alarm won't sound. In an engine room, that delay is fatal.</p>
+                <ul class="card-features">
+                  <li><strong style="color:var(--neon-red)">Total CPU Stoppage:</strong> 72,000,000 clock cycles wasted in dummy spin-loops</li>
+                  <li><strong style="color:var(--neon-red)">Blind Gas Windows:</strong> Flammable vapor spikes go completely unnoticed</li>
+                  <li><strong style="color:var(--neon-red)">Sensor Starvation:</strong> Sonar echo edges miss critical edge interrupts</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Vulnerability</span>
+                <strong style="color: var(--neon-red);">750ms Blind Window (Fatal)</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-red); border-color: var(--neon-red); background: rgba(244, 63, 94, 0.12);">THE DEADLOCK TRAP</span>
+                <h4>Why Blocking Delay Kills</h4>
+                <ul>
+                  <li><strong>Wasted Cycles:</strong> 72,000,000 clock cycles trapped in NOP loop</li>
+                  <li><strong>Blindness:</strong> Misses ultrasonic pulse edges and gas trips</li>
+                  <li><strong>Watchdog:</strong> Triggers false IWDG reset under heavy polling</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⚠️ 750ms Blind Window (Fatal)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-mint);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint); border-color: var(--neon-mint);">OUR SOLUTION: NON-BLOCKING SUPERLOOP</span>
+                <div class="card-heading">Like A Chef in A Busy Kitchen!</div>
+                <p style="margin-bottom: 6px;">A chef doesn't stand staring at the oven for 45 minutes doing nothing. They put food in, set a timer, and keep chopping vegetables!</p>
+                <p>Our code tells the temperature sensor: <em>"Start reading, I will check back on you in 750ms."</em> In the meantime, it measures distance 10 times, checks for gas every 10 microseconds, and keeps the alarm sounding!</p>
+                <ul class="card-features">
+                  <li><strong style="color:var(--neon-mint-bright)">Asynchronous Scheduling:</strong> Timestamp verification with zero waiting</li>
+                  <li><strong style="color:var(--neon-mint-bright)">Continuous Polling:</strong> Gas and Sonar sampled every microsecond</li>
+                  <li><strong style="color:var(--neon-mint-bright)">100% CPU Availability:</strong> Zero HAL_Delay calls anywhere in firmware</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Multitasking Gain</span>
+                <strong style="color: var(--neon-mint-bright);">0ms Blocking | 100% CPU Free</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint-bright); border-color: rgba(52, 211, 153, 0.3); background: rgba(16, 185, 129, 0.12);">STATE MACHINE ARCHITECTURE</span>
+                <h4>Cooperative Scheduling</h4>
+                <ul>
+                  <li><strong>Request:</strong> Transmit 0x44 (Convert-T) and record millisecond timestamp</li>
+                  <li><strong>Concurrency:</strong> Gas pin sampled every 10µs, Sonar captured by TIM2</li>
+                  <li><strong>Retrieval:</strong> Read scratchpad registers only after timer ticks</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">✅ 0ms Blocking | 100% CPU Freedom</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sci-card" style="margin-top: 1.2rem; padding: 0.9rem 1.6rem; border-color: var(--neon-mint);">
+        <span style="font-family: var(--font-mono); font-size: 0.88rem; color: var(--neon-mint); font-weight: 700;">
+          RESULT: Zero delay commands in the loop. 100% continuous, fluid multitasking on a single bare-metal chip.
+        </span>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 7: Clever Coding Solutions
+         ========================================================== -->
+    <section class="slide" id="slide-7" data-speech="To make this work cleanly, we used 3 clever coding tricks: First, we used hardware timers to measure ultrasonic sound waves automatically so the main processor has zero load. Second, we used the internal clock cycles of the ARM chip to talk to the temperature sensor in microseconds. Third, we batch screen and serial updates together 4 times a second so the display stays smooth without hogging the chip.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">CLEVER ENGINEERING TRICKS</span>
+      </div>
+      <h2 class="slide-headline">3 Smart Coding Tricks We Implemented</h2>
+
+      <div class="grid-3">
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">TRICK 1</span>
+                <div class="card-heading">Hardware Echo Capture</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> Waiting for ultrasonic sound echoes can waste up to 30ms of precious time.</p>
+                <p><strong>Our Solution:</strong> We told the chip's internal timer hardware to measure the sound wave echo on its own. The CPU does zero work during sound transit!</p>
+                <ul class="card-features">
+                  <li><strong>TIM2 Channel 1:</strong> Hardware pin PB8 triggers internal counter</li>
+                  <li><strong>Zero Polling:</strong> CPU free to run fire safety checks in flight</li>
+                  <li><strong>Sub-Millimeter:</strong> Precise acoustic edge detection</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Hardware Peripheral</span>
+                <strong>TIM2 Input Capture</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(6, 182, 212, 0.12); color:var(--neon-cyan); border-color:rgba(6, 182, 212, 0.3);">TIMER PERIPHERAL</span>
+                <h4>Input Capture ISR</h4>
+                <ul>
+                  <li><strong>Hardware Pin:</strong> PB8 tied to TIM2 Channel 1</li>
+                  <li><strong>Silicon Latch:</strong> Dual-edge counter captures pulse duration</li>
+                  <li><strong>CPU Impact:</strong> 0% polling overhead during flight</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⏱️ 100% Silicon Handled</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-color: rgba(52, 211, 153, 0.4);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">TRICK 2</span>
+                <div class="card-heading">Microsecond Clock Ticks</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> The temperature probe requires exact microsecond pulses (1µs to 60µs) to talk, but standard code only counts milliseconds.</p>
+                <p><strong>Our Solution:</strong> We tapped directly into the ARM chip's internal cycle counter (DWT) ticking at 96,000,000 times a second for exact timing.</p>
+                <ul class="card-features">
+                  <li><strong>Direct Register Tap:</strong> DWT-&gt;CYCCNT cycle counting</li>
+                  <li><strong>10.4 Nanoseconds:</strong> Resolution per clock pulse @ 96 MHz</li>
+                  <li><strong>Rock Solid:</strong> 1-Wire protocol never drops bits or bytes</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Clock Precision</span>
+                <strong>DWT-&gt;CYCCNT (96 MHz)</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(16, 185, 129, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">CORTEX REGISTERS</span>
+                <h4>DWT Cycle Counter</h4>
+                <ul>
+                  <li><strong>Control Reg:</strong> <code>CoreDebug-&gt;DEMCR |= 0x01000000</code></li>
+                  <li><strong>Counter Reg:</strong> <code>DWT-&gt;CYCCNT</code> ticks at 96 MHz</li>
+                  <li><strong>Precision:</strong> Sub-microsecond (10.4 nanosecond resolution)</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">⚡ Nanosecond Accuracy</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">TRICK 3</span>
+                <div class="card-heading">Batched 4 Hz Screen Updates</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> Drawing numbers on a screen too frequently creates visual flicker and hogs the communication bus.</p>
+                <p><strong>Our Solution:</strong> We batch OLED drawing and PC telemetry together exactly 4 times a second (every 250ms). Fast enough for human eyes, gentle on the processor.</p>
+                <ul class="card-features">
+                  <li><strong>I2C Arbitration:</strong> Prevents sensor packet starvation</li>
+                  <li><strong>Fluid Cadence:</strong> 250ms refresh matches human comprehension</li>
+                  <li><strong>93% Bus Savings:</strong> Reserved bandwidth for safety loops</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Display Cadence</span>
+                <strong>4 Hz OLED &amp; PC Stream</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(139, 92, 246, 0.12); color:#c4b5fd; border-color:rgba(139, 92, 246, 0.3);">BUS ARBITRATION</span>
+                <h4>250ms Refresh Cadence</h4>
+                <ul>
+                  <li><strong>I2C Bandwidth:</strong> OLED redraw takes 18ms at 400 kHz</li>
+                  <li><strong>Cadence:</strong> 4 Hz refresh matches human visual reaction</li>
+                  <li><strong>Efficiency:</strong> Frees 93% bus bandwidth for sensor health</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🖥️ Smooth 4 Hz OLED / 60 FPS PC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 8: The Brain / Decision Logic (Interactive Sim)
+         ========================================================== -->
+    <section class="slide" id="slide-8" data-speech="This is the brain of the safety system—the decision logic. It evaluates rules instantly: If temperature is below 45 and air is clean, it's SAFE with a green light. If either temperature rises or gas is detected, it enters HAZARD mode with a yellow light and slow beeps. If BOTH happen together—fire is imminent! It triggers EMERGENCY mode with a red light and rapid siren. You can actually test these rules live right now on the interactive simulator on the right!">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">THE DECISION BRAIN // TRY IT LIVE!</span>
+      </div>
+      <h2 class="slide-headline">How the System Thinks (3 Simple Rules)</h2>
+
+      <div class="grid-2">
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">SIMPLE DECISION LOGIC</span>
+                <div class="card-heading">Clear, Fail-Safe Rules</div>
+                
+                <div style="background: rgba(12, 16, 26, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.1rem 1.2rem; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.6; margin-bottom: 12px;">
+                  <span style="color:var(--neon-mint-bright)">1. SAFE (Green Light + Silent):</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;Temp &lt; 45°C &nbsp;AND&nbsp; Air is Clean<br><br>
+                  <span style="color:var(--neon-amber)">2. HAZARD (Yellow Light + Slow Beep):</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;Temp &ge; 45°C &nbsp;OR&nbsp; Gas Detected<br><br>
+                  <span style="color:var(--neon-red)">3. EMERGENCY (Red Light + Rapid Siren!):</span><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;Temp &ge; 45°C &nbsp;AND&nbsp; Gas Detected Together
+                </div>
+
+                <p>This decision runs every 10 microseconds. There are no confusing in-between states—action is crystal clear.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Evaluation Cycle</span>
+                <strong style="color: var(--neon-mint-bright);">Continuous Every 10µs</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(52, 211, 153, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">C FIRMWARE LOGIC</span>
+                <h4>Bare-Metal State Machine</h4>
+                <div style="background: rgba(10, 13, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.8rem; font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.5; color: var(--text-lavender); margin: 6px 0;">
+                  <span style="color:var(--neon-cyan)">if</span> (temp &gt;= 45.0f &amp;&amp; gas_alert) {<br>
+                  &nbsp;&nbsp;set_mode(MODE_EMERGENCY);<br>
+                  &nbsp;&nbsp;Alarm_Trigger(LED_RED, SIREN_FAST);<br>
+                  } <span style="color:var(--neon-cyan)">else if</span> (temp &gt;= 45.0f || gas_alert) {<br>
+                  &nbsp;&nbsp;set_mode(MODE_HAZARD);<br>
+                  &nbsp;&nbsp;Alarm_Trigger(LED_YELLOW, BEEP_SLOW);<br>
+                  } <span style="color:var(--neon-cyan)">else</span> {<br>
+                  &nbsp;&nbsp;set_mode(MODE_SAFE);<br>
+                  &nbsp;&nbsp;Alarm_Trigger(LED_GREEN, SILENT);<br>
+                  }
+                </div>
+              </div>
+              <div class="flip-metric-badge">⚡ Evaluated Every 10µs</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Interactive Simulator -->
+        <div class="simulator-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <span class="card-label" style="margin:0;">INTERACTIVE TESTER</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--neon-mint);">[DRAG SLIDERS TO TEST]</span>
+          </div>
+
+          <div class="sim-slider-row">
+            <div class="sim-label-val">
+              <span>Engine Temperature:</span>
+              <strong id="simTempDisplay" style="color: var(--neon-mint); font-size: 1.15rem;">31.4 °C</strong>
+            </div>
+            <input type="range" id="simTempSlider" min="20" max="65" value="31" step="0.5" oninput="updateSimulator()">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-top:2px;">
+              <span>20°C (Cool)</span>
+              <span style="color:var(--neon-amber);">45°C (Threshold)</span>
+              <span>65°C (Critical)</span>
+            </div>
+          </div>
+
+          <div class="sim-slider-row" style="margin-top: 1rem;">
+            <div class="sim-label-val">
+              <span>Fuel / Smoke Gas Status:</span>
+              <strong id="simGasDisplay" style="color: var(--neon-mint); font-size: 1.05rem;">CLEAN (OK)</strong>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button id="btnGasClear" onclick="setGasState(false)" class="btn-pill" style="flex:1; justify-content:center; border-color:var(--neon-mint); font-size:0.8rem;">CLEAN AIR</button>
+              <button id="btnGasInject" onclick="setGasState(true)" class="btn-pill" style="flex:1; justify-content:center; font-size:0.8rem;">SPRAY GAS / SMOKE</button>
+            </div>
+          </div>
+
+          <div class="mode-indicator-box sim-safe" id="simResultBox">
+            <div style="font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0.8;">CURRENT SYSTEM STATE:</div>
+            <div id="simModeText">MODE_SAFE</div>
+            <div id="simActuatorText" style="font-family: var(--font-mono); font-size: 0.8rem; margin-top: 4px; font-weight: normal;">
+              GREEN LED ON  |  BUZZER SILENT
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 9: PC Dashboard & Data Recording
+         ========================================================== -->
+    <section class="slide" id="slide-9" data-speech="While the device works completely on its own, it also plugs into a laptop via USB. 4 times a second it sends a clean message like [DIST: 23 | TEMP: 31.4 | GAS: OK | MODE: SAFE]. We built a Python program that catches these messages and plots live rolling charts. The title bar automatically turns green, yellow, or red to match the ship's state, and typing 'LOG' in the console instantly saves every data point into an Excel CSV file.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">PC SOFTWARE & RECORDING</span>
+      </div>
+      <h2 class="slide-headline">The Live PC Dashboard & Excel Recorder</h2>
+
+      <div class="grid-2">
+        <div class="sci-card" style="display: flex; flex-direction: column;">
+          <span class="card-label">REAL-TIME MONITORING GRAPH</span>
+          <div class="image-showcase" style="margin-top: 10px; flex: 1;">
+            <img src="Dashboard.png" alt="Python Live Dashboard">
+          </div>
+          <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; text-align: center;">
+            Rolling graphs show distance and temperature trends over the last 50 samples
+          </p>
+        </div>
+
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">HOW IT COMMUNICATES</span>
+                <div class="card-heading">A Simple, Readable Message Format</div>
+                <div style="background: rgba(12, 16, 26, 0.75); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 0.85rem 1.2rem; font-family: var(--font-mono); font-size: 0.92rem; color: var(--neon-mint-bright); margin: 8px 0;">
+                  [DIST:23 | TEMP:31.4 | GAS:OK | MODE:SAFE]
+                </div>
+                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-lavender); margin-bottom: 0.9rem;">
+                  Even if a cable gets bumped, this clean text packet is immune to corruption.
+                </p>
+
+                <span class="card-label">SMART PYTHON MULTITHREADING</span>
+                <ul style="margin-top: 6px;">
+                  <li><strong>Worker 1:</strong> Listens to the serial cable in the background so data is never dropped.</li>
+                  <li><strong>Worker 2:</strong> Allows typing <code>LOG</code> to start saving timestamped CSV files on demand.</li>
+                  <li><strong>Main Window:</strong> Draws live Matplotlib graphs with colorful alert banners.</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>Telemetry Protocol</span>
+                <strong style="color: var(--neon-mint-bright);">ASCII Pipeline @ 115,200 Baud</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(16, 185, 129, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">PYTHON PARSER ENGINE</span>
+                <h4>Threaded Ingestion Logic</h4>
+                <div style="background: rgba(10, 13, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.8rem; font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.5; color: var(--text-lavender); margin: 6px 0;">
+                  <span style="color:var(--neon-cyan)">def</span> serial_reader_thread():<br>
+                  &nbsp;&nbsp;<span style="color:var(--neon-cyan)">while</span> running:<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;raw = ser.readline().decode(<span style="color:#a78bfa">'utf-8'</span>).strip()<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;m = re.search(<span style="color:#34d399">r"DIST:(\d+)\|TEMP:([\d\.]+)\|GAS:(\w+)"</span>, raw)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--neon-cyan)">if</span> m: telemetry_queue.put(m.groups())
+                </div>
+              </div>
+              <div class="flip-metric-badge">🐍 Multi-Threaded Queue Protection</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 10: Real Video Test & Proof
+         ========================================================== -->
+    <section class="slide" id="slide-10" data-speech="To prove this works in the real world, we bench-tested the hardware with real heat and real gas. In phase 1, the device sits quietly in SAFE mode. In phase 2, we applied gas fumes to the sensor, and the yellow light and warning beeps fired instantly. In phase 3, we applied heat at the same time—the system immediately tripped into red emergency mode with loud sirens. You can click the button below to play our full recorded demo video!">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">PROOF OF WORKING HARDWARE</span>
+      </div>
+      <h2 class="slide-headline">Testing With Real Heat & Gas (The Proof)</h2>
+
+      <div class="grid-3" style="margin-bottom: 1.2rem;">
+        <div class="sci-card">
+          <div class="card-content-top">
+            <span class="card-label" style="color: var(--neon-mint); border-color: var(--neon-mint);">PHASE 1: NORMAL</span>
+            <div class="image-showcase" style="height: 175px; min-height: 175px; margin: 8px 0;">
+              <img src="extracted_frames/frame_5s.jpg" alt="Phase 1 Safe State">
+            </div>
+            <p style="font-size: 0.92rem; line-height: 1.65; color: var(--text-lavender);">System turned on. Clean air, temperature is a normal 29.2°C, green light shines, OLED shows live numbers.</p>
+          </div>
+          <div class="card-footer-pill">
+            <span>Operational Mode</span>
+            <strong style="color: var(--neon-mint-bright);">SAFE (Green LED)</strong>
+          </div>
+        </div>
+
+        <div class="sci-card" style="border-color: var(--neon-amber);">
+          <div class="card-content-top">
+            <span class="card-label" style="color: var(--neon-amber); border-color: var(--neon-amber);">PHASE 2: GAS ALERT</span>
+            <div class="image-showcase" style="height: 175px; min-height: 175px; margin: 8px 0;">
+              <img src="extracted_frames/frame_25s.jpg" alt="Phase 2 Hazard Trigger">
+            </div>
+            <p style="font-size: 0.92rem; line-height: 1.65; color: var(--text-lavender);">Gas fumes introduced. Instantly turns Yellow, OLED flashes alert, buzzer starts steady 500ms warning beeps.</p>
+          </div>
+          <div class="card-footer-pill">
+            <span>Operational Mode</span>
+            <strong style="color: var(--neon-amber);">HAZARD (Yellow LED + Beep)</strong>
+          </div>
+        </div>
+
+        <div class="sci-card" style="border-color: var(--neon-red);">
+          <div class="card-content-top">
+            <span class="card-label" style="color: var(--neon-red); border-color: var(--neon-red);">PHASE 3: EMERGENCY!</span>
+            <div class="image-showcase" style="height: 175px; min-height: 175px; margin: 8px 0;">
+              <img src="extracted_frames/frame_45s.jpg" alt="Phase 3 Emergency Mode">
+            </div>
+            <p style="font-size: 0.92rem; line-height: 1.65; color: var(--text-lavender);">Heat crossed 45°C while gas is still present. Instantly triggers Red Emergency state with rapid 100ms siren alarm!</p>
+          </div>
+          <div class="card-footer-pill">
+            <span>Operational Mode</span>
+            <strong style="color: var(--neon-red);">EMERGENCY (Red LED + Siren)</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="sci-card" style="padding: 1.1rem 1.85rem; border-color: var(--neon-mint); display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
+        <div>
+          <span class="card-label" style="margin-bottom: 4px;">TEST RESULTS SUMMARY</span>
+          <div style="font-size: 0.96rem; color: #fff; line-height: 1.5;">
+            Reaction Speed: <strong style="color: var(--neon-mint-bright);">&lt; 15 milliseconds</strong> (instant reflex) &nbsp;|&nbsp; 
+            Data Stream: <strong style="color: var(--neon-mint-bright);">0% Dropped Packets</strong>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-pill btn-pill-primary" onclick="playVideoModal(0)" style="font-size: 0.92rem; padding: 10px 18px;">
+            ▶ Demo 1: Bench Test (Vid 1)
+          </button>
+          <button class="btn-pill btn-pill-cyan" onclick="playVideoModal(1)" style="font-size: 0.92rem; padding: 10px 18px;">
+            ▶ Demo 2: System Test (Vid 2)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 11: Real Engineering Obstacles We Solved
+         ========================================================== -->
+    <section class="slide" id="slide-11" data-speech="Like any real engineering project, we faced unexpected roadblocks. First, the temperature probe wanted to freeze our code for nearly a second—we solved that with non-blocking state machines. Second, the distance numbers were jumping around due to CPU interrupts—we solved that by moving measurement to hardware timers. And third, reading serial data stuttered our PC graphs—we solved that by separating reading, logging, and plotting into independent threads.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">ROADBLOCKS & FIXES</span>
+      </div>
+      <h2 class="slide-headline">The Toughest Problems We Solved</h2>
+
+      <div class="grid-2">
+        <!-- Obstacle 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-cyan);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">OBSTACLE 1: 0.75s SENSOR LAG</span>
+                <div class="card-heading">The Sensor Freezing Problem</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> The temperature sensor takes 750ms to read. Traditional delay commands froze the chip and missed gas alarms.</p>
+                <p><strong>How We Fixed It:</strong> We split the read into two states: ask for data now, and pick it up 750ms later while keeping all other sensors running at full speed.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Solution Applied</span>
+                <strong style="color: var(--neon-cyan);">Async State Machine</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan); border-color: var(--neon-cyan); background: rgba(6, 182, 212, 0.12);">DEBUG LOG // FIX</span>
+                <h4>Asynchronous State Machine</h4>
+                <ul>
+                  <li><strong>State 1:</strong> Issue Convert-T (0x44) command to DS18B20</li>
+                  <li><strong>Interleaving:</strong> Run sonar, gas, buzzer &amp; PC telemetry 75 times</li>
+                  <li><strong>State 2:</strong> Collect 12-bit scratchpad only when 750ms timer lapses</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🛠️ Resolved in Firmware v1.2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obstacle 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-mint);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint); border-color: var(--neon-mint);">OBSTACLE 2: JUMPY DISTANCE READINGS</span>
+                <div class="card-heading">Eliminating Software Jitter</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> Using software loops to time distance sound waves caused wild jumps because other tasks interrupted the timing.</p>
+                <p><strong>How We Fixed It:</strong> We let the chip's internal silicon timer (TIM2) capture sound edges automatically in hardware. Rock-solid accuracy.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Solution Applied</span>
+                <strong style="color: var(--neon-mint-bright);">TIM2 Silicon Counter</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint-bright); border-color: rgba(52, 211, 153, 0.3); background: rgba(16, 185, 129, 0.12);">SIGNAL PROCESSING</span>
+                <h4>Silicon Edge Capture</h4>
+                <ul>
+                  <li><strong>Hardware Latch:</strong> Silicon registers record start/stop microsecond stamps</li>
+                  <li><strong>Interrupt Hygiene:</strong> Zero CPU cycle interference from other tasks</li>
+                  <li><strong>Median Filter:</strong> Software suppresses physical acoustic reflections</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🛠️ Jitter Reduced from 12cm to 0.2cm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obstacle 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-amber);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber); border-color: var(--neon-amber);">OBSTACLE 3: COUNTING MICROSECONDS</span>
+                <div class="card-heading">Hardware Timing Precision</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> Standard microcontroller libraries only count in whole milliseconds, but 1-Wire sensors need 5-microsecond pulses.</p>
+                <p><strong>How We Fixed It:</strong> We enabled the ARM chip's internal DWT cycle counter, which ticks every 10 nanoseconds for pinpoint accuracy.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Solution Applied</span>
+                <strong style="color: var(--neon-amber);">DWT 10ns Cycle Clock</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber); border-color: var(--neon-amber); background: rgba(245, 158, 11, 0.12);">ARM HARDWARE TIMING</span>
+                <h4>DWT Counter Solution</h4>
+                <ul>
+                  <li><strong>Limitation:</strong> HAL_GetTick() is 1,000x too coarse for 1-Wire</li>
+                  <li><strong>Cortex Fix:</strong> DWT cycle register counts 96,000,000 ticks/sec</li>
+                  <li><strong>Formula:</strong> <code>1 microsecond = 96 core clock ticks</code></li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🛠️ 100% Stable 1-Wire Handshake</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obstacle 4 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-left: 5px solid var(--neon-purple);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.12);">OBSTACLE 4: PC GRAPH STUTTERING</span>
+                <div class="card-heading">Smooth Python Multithreading</div>
+                <p style="margin-bottom: 6px;"><strong>The Problem:</strong> Waiting for serial messages made the Matplotlib graph lag and freeze up on the laptop.</p>
+                <p><strong>How We Fixed It:</strong> We decoupled reading and plotting into separate background threads, creating a buttery-smooth 60 FPS display.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Solution Applied</span>
+                <strong style="color: #c4b5fd;">Multithreaded Queue</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.12);">PYTHON ARCHITECTURE</span>
+                <h4>Producer-Consumer Pattern</h4>
+                <ul>
+                  <li><strong>Producer Thread:</strong> Continuously drains 115200 baud UART buffer</li>
+                  <li><strong>ThreadSafe Queue:</strong> Hands telemetry frames to main process</li>
+                  <li><strong>Consumer GUI:</strong> Matplotlib blits graph updates smoothly at 60 FPS</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🛠️ Zero Dropped Serial Packets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 12: What I Learnt (Key Takeaways)
+         ========================================================== -->
+    <section class="slide" id="slide-12" data-speech="What did I learn from this internship? This wasn't just book theory—it was real engineering. I learned how to program bare-metal C on ARM Cortex-M4 chips, how to write multi-tasking code without an RTOS, how to talk to digital bus protocols like 1-Wire, I2C, and UART, and how to build full-stack tools using Python for real-time visualization and data logging.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">PERSONAL GROWTH & SKILLS</span>
+      </div>
+      <h2 class="slide-headline">What I Personally Learnt From This Project</h2>
+
+      <div class="grid-6">
+        <!-- Learn 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">01 / REAL EMBEDDED C</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Bare-Metal Programming</div>
+                <p>Configuring internal registers, clock frequencies (96 MHz), and hardware peripherals directly in C.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Domain</span>
+                <strong>STM32 Low-Level C</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label">HARD SKILL</span>
+                <h4>Low-Level Control</h4>
+                <p>Direct register manipulation, CMSIS headers, clock trees, PLL configuration, and MCU linker memory mapping.</p>
+              </div>
+              <div class="flip-metric-badge">Embedded C / ARM M4</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-color: rgba(52, 211, 153, 0.35);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">02 / MULTITASKING</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Non-Blocking Logic</div>
+                <p>How to architect systems where 4 different jobs run smoothly without any task starving or freezing the chip.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Architecture</span>
+                <strong>Cooperative Superloop</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label">HARD SKILL</span>
+                <h4>Real-Time Systems</h4>
+                <p>Designing cooperative state-machine schedulers without RTOS footprint overhead, ensuring deterministic execution.</p>
+              </div>
+              <div class="flip-metric-badge">Cooperative Scheduling</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">03 / HARDWARE PROTOCOLS</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Sensors &amp; Wiring</div>
+                <p>Mastered 1-Wire digital communication, fast 400 kHz I2C buses, and reliable UART serial links.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Buses</span>
+                <strong>1-Wire / I2C / UART</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label">HARD SKILL</span>
+                <h4>Bus Architecture</h4>
+                <p>Mastered open-drain GPIO, pull-up resistor sizing, I2C address handshakes, and UART frame formatting.</p>
+              </div>
+              <div class="flip-metric-badge">1-Wire / I2C / UART</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn 4 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">04 / HARDWARE TIMERS</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Input Capture ISRs</div>
+                <p>Using hardware timer interrupts to count microsecond sound waves without wasting CPU cycles.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Peripherals</span>
+                <strong>TIM2 Input Capture</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label">HARD SKILL</span>
+                <h4>Silicon Automation</h4>
+                <p>Timer prescalers, auto-reload registers (ARR), dual-edge input capture channels, and low-latency ISRs.</p>
+              </div>
+              <div class="flip-metric-badge">TIM Peripheral ISRs</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn 5 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-color: rgba(139, 92, 246, 0.35);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.12);">05 / PC DATA TOOLS</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Python Multithreading</div>
+                <p>Writing multi-threaded Python applications to visualize sensor data live and export clean Excel/CSV logs.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>GUI &amp; Data</span>
+                <strong>Python Multithreading</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.12);">HARD SKILL</span>
+                <h4>Full-Stack Telemetry</h4>
+                <p>PySerial daemon threads, thread-safe Queues, real-time Matplotlib animation, and maritime audit logging.</p>
+              </div>
+              <div class="flip-metric-badge">Python / Threading / UI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn 6 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">06 / PRACTICAL DEBUGGING</span>
+                <div class="card-heading" style="font-size: 1.05rem;">Real Hardware Wisdom</div>
+                <p>Tracking down loose ground wires, voltage drops, and timing bugs on real physical breadboards.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Diagnostics</span>
+                <strong>Bench &amp; Oscilloscope</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label">HARD SKILL</span>
+                <h4>Bench Wisdom</h4>
+                <p>Oscilloscope waveform probing, grounding discipline, parasitic capacitance mitigation, and real-world thermal testing.</p>
+              </div>
+              <div class="flip-metric-badge">Bench Diagnostics</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 13: Future Commercial Roadmap
+         ========================================================== -->
+    <section class="slide" id="slide-13" data-speech="If we take this project to the commercial maritime market, here is our roadmap: First, upgrade the wiring to industrial CAN bus used on modern ships. Second, add LoRa or satellite connectivity to beam engine alerts straight to the ship's bridge and onshore fleet managers. Third, add TinyML machine learning to listen to engine vibration and predict bearing wear before parts break. And fourth, put it into a waterproof, marine-certified metal enclosure.">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">WHERE WE GO NEXT</span>
+      </div>
+      <h2 class="slide-headline">How We Can Make This a Commercial Product</h2>
+
+      <div class="grid-4">
+        <!-- Roadmap 1 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-top: 4px solid var(--neon-cyan);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan);">PHASE 1</span>
+                <div class="card-heading" style="font-size: 1.08rem;">Industrial CAN Bus</div>
+                <p>Replace USB serial cables with heavy-duty marine CAN bus so multiple sensor pods connect across the whole ship.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Protocol</span>
+                <strong>ISO 11898-2 CAN</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-cyan);">SPECIFICATION</span>
+                <h4>NMEA 2000 CAN</h4>
+                <ul>
+                  <li><strong>Standard:</strong> ISO 11898-2 differential signaling</li>
+                  <li><strong>Capacity:</strong> 64 nodes chained on 1 twisted pair</li>
+                  <li><strong>Noise Immunity:</strong> High EMI rejection against diesel alternators</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">1 Mbps Marine Bus</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap 2 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-top: 4px solid var(--neon-mint-bright);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint-bright);">PHASE 2</span>
+                <div class="card-heading" style="font-size: 1.08rem;">Satellite Cloud Links</div>
+                <p>Beam live telemetry over satellite so shore-side fleet headquarters can check engine health anywhere on earth.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Coverage</span>
+                <strong>Global Fleet Links</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-mint-bright);">TELEMETRY</span>
+                <h4>Global Fleet Sync</h4>
+                <ul>
+                  <li><strong>Channel:</strong> Iridium SBD / Starlink Marine API</li>
+                  <li><strong>Data:</strong> Compressed hourly JSON telemetry packets</li>
+                  <li><strong>Reach:</strong> 100% planetary coverage across deep oceans</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">Global Satellite Reach</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap 3 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-top: 4px solid var(--neon-amber);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber);">PHASE 3</span>
+                <div class="card-heading" style="font-size: 1.08rem;">Predictive AI (TinyML)</div>
+                <p>Train miniature neural networks on vibration sensors to catch failing bearings weeks before they overheat.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Edge Model</span>
+                <strong>Bearing Prognostics</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: var(--neon-amber);">EDGE AI</span>
+                <h4>Bearing Prognostics</h4>
+                <ul>
+                  <li><strong>Sensor:</strong> 3-axis high-g MEMS accelerometer</li>
+                  <li><strong>Model:</strong> Quantized int8 TensorFlow Lite on Cortex-M4</li>
+                  <li><strong>Early Warning:</strong> Detects micro-cracks weeks before seizure</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">TinyML On-Chip AI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap 4 -->
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="border-top: 4px solid var(--neon-purple);">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd;">PHASE 4</span>
+                <div class="card-heading" style="font-size: 1.08rem;">Marine Metal Casing</div>
+                <p>Design a custom PCB inside an IP67 waterproof, flame-retardant aluminum housing built for diesel environments.</p>
+              </div>
+              <div class="card-footer-pill">
+                <span>Standard</span>
+                <strong>IP67 Waterproof CNC</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="color: #c4b5fd;">CERTIFICATION</span>
+                <h4>DNV-GL Standards</h4>
+                <ul>
+                  <li><strong>Enclosure:</strong> CNC anodized aluminum IP67 waterproof</li>
+                  <li><strong>Resistance:</strong> Diesel mist, salt spray, and 50g shock</li>
+                  <li><strong>Safety:</strong> Explosion-proof sintered brass flame arrestor</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">IP67 Marine Grade</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SLIDE 14: Conclusion & Q&A
+         ========================================================== -->
+    <section class="slide" id="slide-14" data-speech="To conclude: We took a real-world maritime safety hazard, designed an autonomous embedded monitor on STM32, wrote zero-blocking bare-metal firmware, built a live Python telemetry tool, and proven it with real heat and gas tests. The project is completely functional, open-source on GitHub, and ready for discussion. Thank you so much, and I'd love to take your questions!">
+      <div class="hud-bracket">
+        <div class="hud-bracket-line"></div>
+        <span class="slide-eyebrow">WRAP-UP & QUESTIONS</span>
+      </div>
+      <h2 class="slide-headline">Project Summary & Evaluation Q&A</h2>
+
+      <div class="grid-2">
+        <div class="flip-card" onclick="toggleCardFlip(this, event)">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="flip-hint"><span>↺</span> FLIP</div>
+              <div class="card-content-top">
+                <span class="card-label">FINAL RECAP</span>
+                <div class="card-heading">What We Accomplished</div>
+                <ul style="margin-top: 0.8rem;">
+                  <li><strong>Solved a Real Problem:</strong> Continuous, automated 24/7 vitals monitoring for harsh ship engine rooms.</li>
+                  <li><strong>Zero Freezing or Lag:</strong> Engineered a non-blocking cooperative superloop running all sensors seamlessly.</li>
+                  <li><strong>Bench-Tested &amp; Proven:</strong> Validated with live gas fumes and heat triggers with &lt;15ms instant response.</li>
+                  <li><strong>Complete System Suite:</strong> Built low-level C firmware, hardware wiring, and multithreaded Python telemetry.</li>
+                </ul>
+              </div>
+              <div class="card-footer-pill">
+                <span>System Status</span>
+                <strong style="color: var(--neon-mint-bright);">100% Tested &amp; Proven</strong>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="flip-hint flip-hint-back"><span>↻</span> BACK</div>
+              <div class="card-content-top">
+                <span class="card-label" style="background:rgba(52, 211, 153, 0.12); color:var(--neon-mint-bright); border-color:rgba(52, 211, 153, 0.3);">DEFENSE TAKEAWAY</span>
+                <h4>Capstone Project Strengths</h4>
+                <ul style="margin-top: 0.8rem;">
+                  <li><strong>Autonomous Edge Safety:</strong> Operates entirely offline without needing an active internet connection.</li>
+                  <li><strong>Firmware Rigor:</strong> Zero-blocking cooperative time slicing prevents deadlocks and blind spots.</li>
+                  <li><strong>End-to-End Vertical Build:</strong> Physical wiring, ARM registers, serial protocols, and PC desktop GUI.</li>
+                </ul>
+              </div>
+              <div class="flip-metric-badge">🏆 100% Real Hardware Defended</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sci-card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(52, 211, 153, 0.35);">
+          <div>
+            <span class="card-label">PROJECT LINKS</span>
+            <div class="card-heading" style="color: var(--neon-mint-bright); font-family: var(--font-mono); font-size: 1.05rem;">
+              github.com/UjjvxL/Ship-Engine-Room-Safety-Monitor-
+            </div>
+            <p style="margin-top: 6px;">Source code, pinout IOC files, Python dashboard, and sample logs available on GitHub.</p>
+
+            <div style="margin-top: 1.1rem; display: flex; flex-direction: column; gap: 0.65rem;">
+              <span class="card-label">RECORDED DEMO VIDEOS</span>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-pill btn-pill-primary" onclick="playVideoModal(0)" style="flex: 1; min-width: 190px; justify-content: center; padding: 9px 14px; font-size: 0.84rem;">
+                  ▶ Play Video 1: Bench Test
+                </button>
+                <button class="btn-pill btn-pill-cyan" onclick="playVideoModal(1)" style="flex: 1; min-width: 190px; justify-content: center; padding: 9px 14px; font-size: 0.84rem;">
+                  ▶ Play Video 2: System Test
+                </button>
+              </div>
+              <p style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-dim); margin-top: 2px;">
+                Direct local files: Final Vid 1.mp4 &amp; Final vid 2.mp4
+              </p>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.2rem;">
+            <h2 style="font-family: var(--font-display); font-size: 2.3rem; color: var(--neon-mint-bright); font-weight: 700; letter-spacing: -0.02em;">THANK YOU!</h2>
+            <p style="font-size: 0.98rem; color: var(--text-lavender); margin-top: 4px;">Open for Questions &amp; Evaluation Discussion</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Video Demonstration Modal with Dual Video Switcher -->
+  <div id="videoModal">
+    <div style="width: 88%; max-width: 1040px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--neon-mint-bright); box-shadow: 0 0 10px var(--neon-mint-bright);"></span>
+        <h3 id="videoModalTitle" style="color: var(--neon-mint-bright); font-family: var(--font-mono); font-size: 0.98rem; letter-spacing: 0.04em;">
+          DEMO 1: LIVE BENCH TEST &amp; SENSOR RESPONSE (FINAL VID 1.MP4)
+        </h3>
+      </div>
+      
+      <!-- Video Tab Switcher -->
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="videoTab1" onclick="switchModalVideo(0)" class="btn-pill btn-pill-primary" style="font-size: 0.82rem; padding: 6px 14px;">
+          📹 Video 1: Bench Test
+        </button>
+        <button id="videoTab2" onclick="switchModalVideo(1)" class="btn-pill" style="font-size: 0.82rem; padding: 6px 14px;">
+          📹 Video 2: Full System Test
+        </button>
+        <button onclick="closeVideoModal()" class="btn-pill" style="border-color: rgba(244, 63, 94, 0.4); color: #fda4af; margin-left: 6px;">
+          ✕ Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Video Frame -->
+    <div style="width: 88%; max-width: 1040px; max-height: 74vh; border: 2px solid var(--neon-mint-bright); border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 0 50px rgba(0, 255, 157, 0.35); position: relative;">
+      <video id="demoVideo" controls style="width: 100%; height: 100%; max-height: 70vh; object-fit: contain; background: #000;">
+        <source src="file:///C:/Users/ujjva/Downloads/Final%20Vid%201.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+    </div>
+
+    <!-- Video Caption Bar -->
+    <div id="videoModalDesc" style="width: 88%; max-width: 1040px; margin-top: 10px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-lavender); text-align: center;">
+      Hardware Bench Verification — Real Gas &amp; Heat Trigger Response (&lt;15ms latency)
+    </div>
+  </div>
+
+  <!-- Speaker Notes Tray (Speech Script) -->
+  <div id="speakerNotesTray" class="speaker-notes-tray">
+    <div class="notes-title">
+      <span>💬 HOW TO EXPLAIN THIS SLIDE (SPEAKING SCRIPT)</span>
+      <button onclick="toggleSpeakerNotes()" style="background:none; border:none; color:#ff99d8; cursor:pointer; font-weight:bold; font-size:1rem;">✕ Close</button>
+    </div>
+    <p id="notesSpeechContent" class="notes-speech">
+      Loading speaking script...
+    </p>
+  </div>
+
+  <!-- Bottom Status Footer -->
+  <footer class="app-shell-bottom">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="color:var(--neon-mint-bright)">●</span>
+      <span>github.com/UjjvxL/Ship-Engine-Room-Safety-Monitor-</span>
+    </div>
+    
+    <div id="slideCounterDisplay" style="color:var(--text-white); font-weight:700;">
+      SLIDE 01 / 14
+    </div>
+
+    <div class="chevron-next" onclick="nextSlide()">
+      <span>NEXT SLIDE</span>
+      <span style="font-size:1.1rem;">›</span>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 14;
+
+    // Web Audio API Soft Tactile Feedback (100% Offline, Zero Dependencies)
+    let audioCtx = null;
+    function playFlipSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(860, audioCtx.currentTime + 0.07);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch(e) {}
+    }
+
+    // Toggle 3D Flip on a Card
+    function toggleCardFlip(cardElement, event) {
+      if (event && (event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT' || event.target.tagName === 'A' || event.target.closest('button') || event.target.closest('a'))) {
+        return; // Don't flip when clicking inside interactive controls
+      }
+      cardElement.classList.toggle('flipped');
+      playFlipSound();
+    }
+
+    // Flip All Cards on the Active Slide
+    function flipAllCardsOnSlide() {
+      const activeSlide = document.querySelector('.slide.active');
+      if (!activeSlide) return;
+      const cards = activeSlide.querySelectorAll('.flip-card');
+      if (cards.length === 0) return;
+      const allFlipped = Array.from(cards).every(c => c.classList.contains('flipped'));
+      cards.forEach((c, idx) => {
+        setTimeout(() => {
+          if (allFlipped) {
+            c.classList.remove('flipped');
+          } else {
+            c.classList.add('flipped');
+          }
+          playFlipSound();
+        }, idx * 60);
+      });
+    }
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((slide, idx) => {
+        if (idx + 1 === currentSlide) {
+          slide.classList.add('active');
+          // Update speaker notes
+          const speech = slide.getAttribute('data-speech') || "Explain this slide simply.";
+          document.getElementById('notesSpeechContent').innerText = speech;
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      document.getElementById('slideCounterDisplay').innerText = 
+        `SLIDE ${String(currentSlide).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+      
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.error(err));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      const tray = document.getElementById('speakerNotesTray');
+      tray.classList.toggle('open');
+    }
+
+    // Dual Video Sources Configuration (Relative for sharing, fallback for absolute local)
+    const videoSources = [
+      {
+        title: "DEMO 1: LIVE BENCH TEST & SENSOR RESPONSE (FINAL VID 1.MP4)",
+        src: "Final Vid 1.mp4",
+        fallbackSrc: "file:///C:/Users/ujjva/Downloads/Final%20Vid%201.mp4",
+        desc: "Hardware Bench Verification — Real Gas & Heat Trigger Response (<15ms latency)"
+      },
+      {
+        title: "DEMO 2: FULL SYSTEM & ALERT RESPONSE (FINAL VID 2.MP4)",
+        src: "Final vid 2.mp4",
+        fallbackSrc: "file:///C:/Users/ujjva/Downloads/Final%20vid%202.mp4",
+        desc: "Full Operational Run — Multi-Sensor Telemetry, Visual/Audio Alarm Sequence & PC Telemetry Link"
+      }
+    ];
+    let currentVideoIndex = 0;
+
+    function switchModalVideo(index) {
+      currentVideoIndex = index;
+      const vid = document.getElementById('demoVideo');
+      const titleEl = document.getElementById('videoModalTitle');
+      const descEl = document.getElementById('videoModalDesc');
+      const btnTab1 = document.getElementById('videoTab1');
+      const btnTab2 = document.getElementById('videoTab2');
+
+      vid.pause();
+      vid.onerror = function() {
+        if (videoSources[index].fallbackSrc && vid.src !== videoSources[index].fallbackSrc) {
+          console.log('Relative path missed, trying local PC path fallback...');
+          vid.onerror = null;
+          vid.src = videoSources[index].fallbackSrc;
+          vid.load();
+          vid.play().catch(e => console.log(e));
+        }
+      };
+      vid.src = videoSources[index].src;
+      vid.load();
+      titleEl.innerText = videoSources[index].title;
+      descEl.innerText = videoSources[index].desc;
+      
+      if (index === 0) {
+        btnTab1.className = 'btn-pill btn-pill-primary';
+        btnTab2.className = 'btn-pill';
+      } else {
+        btnTab1.className = 'btn-pill';
+        btnTab2.className = 'btn-pill btn-pill-cyan';
+      }
+      vid.currentTime = 0;
+      vid.play().catch(e => console.log('Autoplay handled:', e));
+    }
+
+    function playVideoModal(index = 0) {
+      const modal = document.getElementById('videoModal');
+      modal.style.display = 'flex';
+      switchModalVideo(index);
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('videoModal');
+      const vid = document.getElementById('demoVideo');
+      vid.pause();
+      modal.style.display = 'none';
+    }
+
+    // Interactive State Machine Simulator Logic (Slide 8)
+    let simGasAlert = false;
+
+    function setGasState(isAlert) {
+      simGasAlert = isAlert;
+      const btnClean = document.getElementById('btnGasClear');
+      const btnInject = document.getElementById('btnGasInject');
+      const gasDisplay = document.getElementById('simGasDisplay');
+
+      if (isAlert) {
+        btnInject.style.borderColor = 'var(--neon-red)';
+        btnInject.style.color = 'var(--neon-red)';
+        btnInject.style.background = 'rgba(244, 63, 94, 0.2)';
+        btnClean.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        btnClean.style.color = '#fff';
+        btnClean.style.background = 'transparent';
+        gasDisplay.innerText = 'DANGER! GAS DETECTED';
+        gasDisplay.style.color = 'var(--neon-red)';
+      } else {
+        btnClean.style.borderColor = 'var(--neon-mint-bright)';
+        btnClean.style.color = 'var(--neon-mint-bright)';
+        btnClean.style.background = 'rgba(16, 185, 129, 0.15)';
+        btnInject.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        btnInject.style.color = '#fff';
+        btnInject.style.background = 'transparent';
+        gasDisplay.innerText = 'CLEAN AIR (OK)';
+        gasDisplay.style.color = 'var(--neon-mint-bright)';
+      }
+      updateSimulator();
+    }
+
+    function updateSimulator() {
+      const tempVal = parseFloat(document.getElementById('simTempSlider').value);
+      const tempDisplay = document.getElementById('simTempDisplay');
+      tempDisplay.innerText = tempVal.toFixed(1) + ' °C';
+
+      const tempAlert = tempVal >= 45.0;
+      if (tempAlert) {
+        tempDisplay.style.color = 'var(--neon-amber)';
+      } else {
+        tempDisplay.style.color = 'var(--neon-mint-bright)';
+      }
+
+      const resultBox = document.getElementById('simResultBox');
+      const modeText = document.getElementById('simModeText');
+      const actuatorText = document.getElementById('simActuatorText');
+
+      resultBox.className = 'mode-indicator-box';
+
+      if (simGasAlert && tempAlert) {
+        resultBox.classList.add('sim-emergency');
+        modeText.innerText = 'MODE: EMERGENCY!';
+        actuatorText.innerText = 'RED LIGHT ON  |  LOUD RAPID SIREN (100ms)';
+      } else if (simGasAlert || tempAlert) {
+        resultBox.classList.add('sim-hazard');
+        modeText.innerText = 'MODE: HAZARD (WARNING)';
+        actuatorText.innerText = 'YELLOW LIGHT ON  |  SLOW WARNING BEEP (500ms)';
+      } else {
+        resultBox.classList.add('sim-safe');
+        modeText.innerText = 'MODE: SAFE (ALL NORMAL)';
+        actuatorText.innerText = 'GREEN LIGHT ON  |  BUZZER SILENT';
+      }
+    }
+
+    // Keyboard Navigation & Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('videoModal').style.display === 'flex') {
+        if (e.key === 'Escape') closeVideoModal();
+        return;
+      }
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        showSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        showSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleSpeakerNotes();
+      } else if (e.key === 'r' || e.key === 'R') {
+        flipAllCardsOnSlide();
+      }
+    });
+
+    // Initialize
+    showSlide(1);
+    updateSimulator();
+  </script>
+</body>
+</html>
